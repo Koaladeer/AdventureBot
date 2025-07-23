@@ -2,11 +2,12 @@ import torch
 import joblib
 from transformers import BertTokenizer, BertForSequenceClassification
 from jericho import FrotzEnv
-import JerichoWorld.defines_updated  # your custom bindings
 import os
 
+from JerichoWorld import defines_updated
+
 # Load everything
-model_path = 'models/bert_zork_model'
+model_path = 'models/bert_zork_modelV04'
 
 print("Loading model...")
 model = BertForSequenceClassification.from_pretrained(model_path)
@@ -19,7 +20,7 @@ model.to(device)
 
 # Load Jericho environment
 rom_path = 'games/z-machine-games-master/jericho-game-suite/zork1.z5'
-bindings = defines_updated.BINDINGS_DICT['zork1.z5']
+bindings = defines_updated.BINDINGS_DICT['zork1']
 env = FrotzEnv(rom_path, seed=bindings['seed'])
 obs = env.reset()[0]
 
@@ -33,21 +34,16 @@ for step in range(100):
     # Get state descriptions
     loc_desc = env.step('look')[0]
     env.set_state(state)
-    inv_desc = env.step('inventory')[0]
-    env.set_state(state)
-
     location = env.get_player_location()
+    valid_actions = env.get_valid_actions()
     score = env.get_score()
 
-    inv_objs = env.identify_interactive_objects(use_object_tree=True, inventory=True)
-    surr_objs = env.identify_interactive_objects(use_object_tree=True, inventory=False)
 
-    inv_obj_names = ' '.join([obj[0] for obj in inv_objs])
+    surr_objs = env._identify_interactive_objects(use_object_tree=True)
     surr_obj_names = ' '.join([obj[0] for obj in surr_objs])
 
-    # Build enriched input string
-    input_text = f"Location: {loc_desc}. Inventory: {inv_desc}. InventoryObjs: {inv_obj_names}. Surroundings: {surr_obj_names}. Score: {score}."
-
+    # Build input string
+    input_text = f"Observation: {obs}.Location: {loc_desc}. Surroundings: {surr_obj_names}. Score: {score}. Actions:{valid_actions}"
     # Tokenize and predict
     encoding = tokenizer(input_text, return_tensors='pt', truncation=True, padding=True).to(device)
 
@@ -55,13 +51,13 @@ for step in range(100):
         outputs = model(**encoding)
         logits = outputs.logits
         pred = torch.argmax(logits, dim=1).item()
-
+    print(env.get_valid_actions())
     predicted_action = le.inverse_transform([pred])[0]
     print(f"Step {step+1}: Predicted action -> {predicted_action}")
 
     # Take action
     obs, reward, done, info = env.step(predicted_action)
-    print(f"Obs: {obs}\nReward: {reward}\n")
+    print(f"Obs: {obs}\n Reward: {reward}\n")
 
     state = env.get_state()
 
