@@ -13,11 +13,11 @@ import numpy as np
 import seaborn as sns
 import pandas as pd
 
-# 1️⃣ Load dataset
-with open('data/data_zork1.json', 'r') as f:
+# Load dataset
+with open('data/data_zork1_v2.json', 'r') as f:
     data = json.load(f)
 
-# 2️⃣ Extract state-action pairs
+#Extract state-action pairs
 inputs, targets = [], []
 for sample in data:
     state = sample['state']
@@ -183,12 +183,9 @@ def plot_normalized_action_location_heatmap(
         plt.savefig(save_path, dpi=300)
         print(f"Saved heatmap to {save_path}")
 
-    plt.show()
-
-# Example usage
 plot_normalized_action_location_heatmap(
     json_path="data/data_zork1.json",
-    top_n_actions=20,
-    top_n_locations=10,
+    top_n_actions=30,
+    top_n_locations=20,
     save_path="action_location_heatmap.png"
 )

@@ -27,7 +27,7 @@ obs = env.reset()[0]
 state = env.get_state()
 done = False
 
-for step in range(100):
+for step in range(20):
     if done:
         break
 
@@ -51,7 +51,8 @@ for step in range(100):
         outputs = model(**encoding)
         logits = outputs.logits
         pred = torch.argmax(logits, dim=1).item()
-    print(env.get_valid_actions())
+    #print(env.get_valid_actions())
+    print(input_text)
     predicted_action = le.inverse_transform([pred])[0]
     print(f"Step {step+1}: Predicted action -> {predicted_action}")
 

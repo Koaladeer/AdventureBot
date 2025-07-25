@@ -51,9 +51,11 @@ Follow these steps to set up your environment:
 This repository is organized to separate different aspects of the project:
 
 | File/Directory Prefix | Description |
-| :-------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|:----------------------| :---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `gemini_...`          | Files prefixed with `gemini_` are generated or heavily influenced by GenAI (e.g., Gemini) to facilitate brainstorming, rapid prototyping, and faster iteration cycles. |
-| `Agent_...`           | These files contain the core game loop logic and the implementation of the AI agent, including its decision-making processes and interactions with the game.         |
-| `Trainer_...`         | Scripts within this category are responsible for training the agent. This includes defining training environments, reward functions, and learning algorithms.          |
-| `Analysis_...`        | This section is dedicated to data exploration, statistical analysis, and plotting of insights derived from the game interaction data and agent performance.            |
+| `...agent`            | These files contain the core game loop logic and the implementation of the AI agent, including its decision-making processes and interactions with the game.         |
+| `...trainer`          | Scripts within this category are responsible for training the agent. This includes defining training environments, reward functions, and learning algorithms.          |
+| `...analyssis`        | This section is dedicated to data exploration, statistical analysis, and plotting of insights derived from the game interaction data and agent performance.            |
+
+## Files
 

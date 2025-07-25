@@ -1,3 +1,8 @@
+
+#!pip install transformers torch scikit-learn matplotlib seaborn pandas joblib
+#!pip install -U accelerate
+#!pip install -U transformers
+#!pip install tf-keras
 import json
 import os
 import joblib
@@ -9,11 +14,6 @@ from collections import Counter
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import seaborn as sns # Added for better plotting aesthetics
-
-#!pip install transformers torch scikit-learn matplotlib seaborn pandas joblib
-#!pip install -U accelerate
-#!pip install -U transformers
-#!pip install tf-keras
 
 # Define a normalization dictionary for common actions (matches player's map)
 ACTION_NORMALIZATION_MAP = {
@@ -57,10 +57,9 @@ def load_data_and_extract_pairs(filepath: str) -> tuple[list, list]:
     inputs, targets = [], []
     for sample in data:
         state = sample['state']
-        # IMPROVEMENT: Include inv_desc to match player's input format
         input_text = (
             f"Observation: {state['obs']}. Location: {state['loc_desc']}. "
-            f"Inventory: {state['inv_desc']}. " # Added inventory
+            f"Inventory: {state['inv_desc']}. " 
             f"Surroundings: {' '.join(state['surrounding_objs'].keys())}. "
             f"Score: {state['score']}."
         )
@@ -70,7 +69,6 @@ def load_data_and_extract_pairs(filepath: str) -> tuple[list, list]:
 
 def normalize_and_balance_data(inputs: list, targets: list) -> tuple[list, list]:
     """Normalizes actions and balances the dataset by downsampling."""
-    # IMPROVEMENT: Use the same normalization map as the player
     normalized_targets = [ACTION_NORMALIZATION_MAP.get(a.strip(), a.strip().lower()) for a in targets]
 
     balanced_inputs, balanced_targets = [], []
@@ -108,19 +106,19 @@ def setup_trainer(model_path: str, num_labels: int, train_dataset: Dataset, val_
     model.to(device)
 
     training_args = TrainingArguments(
-        output_dir=os.path.join('results', os.path.basename(model_path)),
-        num_train_epochs=40,
+        output_dir=os.path.join('models/', os.path.basename(model_path)),
+        num_train_epochs=20,
         per_device_train_batch_size=16,
-        per_device_eval_batch_size=64,
-        warmup_steps=50,
+        per_device_eval_batch_size=16,
+        warmup_steps=10,
         weight_decay=0.01,
         logging_dir='./logs',
-        logging_steps=100,
+        logging_steps=20,
         eval_strategy='epoch',
-        save_strategy='epoch', # Save checkpoints at each epoch
-        load_best_model_at_end=True, # Load the best model at the end of training
-        metric_for_best_model="eval_loss", # Metric to use for best model selection
-        greater_is_better=False, # Lower eval_loss is better
+        #save_strategy='epoch', # Save checkpoints at each epoch
+        #load_best_model_at_end=True, # Load the best model at the end of training
+        #metric_for_best_model="eval_loss", # Metric to use for best model selection
+        #greater_is_better=False, # Lower eval_loss is better
     )
     loss_tracker = LossTrackerCallback()
     trainer = Trainer(
@@ -144,7 +142,7 @@ def plot_loss_curve(loss_tracker: LossTrackerCallback, save_path: str):
     # Plot Training Loss
     # `global_steps` ensures correct x-axis alignment even if logging_steps is large
     plt.plot(loss_tracker.global_steps, loss_tracker.train_losses,
-             label='Training Loss', color='skyblue', linewidth=1.5, alpha=0.8)
+             label='Training Loss', color='skyblue', marker='o', linestyle='--', markersize=6,linewidth=1.5, alpha=0.8)
 
     # Plot Validation Loss
     # `eval_steps` aligns validation loss with the global steps at which evaluations occurred
@@ -164,8 +162,8 @@ def plot_loss_curve(loss_tracker: LossTrackerCallback, save_path: str):
 
 if __name__ == "__main__":
     DATA_PATH = 'data/data_zork1.json'
-    MODEL_NAME = 'bert_zork_modelV04' # New model name for improved prompts
-    MODEL_PATH = os.path.join('models', MODEL_NAME)
+    MODEL_NAME = 'bert_zork_modelV04_improved_prompts' # New model name for improved prompts
+    MODEL_PATH = os.path.join('models/', MODEL_NAME)
     PLOT_DIR = 'plots'
     os.makedirs(MODEL_PATH, exist_ok=True)
     os.makedirs(PLOT_DIR, exist_ok=True)

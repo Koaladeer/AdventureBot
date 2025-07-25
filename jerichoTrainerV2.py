@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from JerichoWorld.defines_updated import ABBRV_DICT
 from transformers import TrainerCallback
 import matplotlib.pyplot as plt
+from sklearn.metrics import classification_report, accuracy_score
 
 # 1️⃣ Load dataset
 with open('data/data_zork1.json', 'r') as f:
@@ -60,8 +61,6 @@ for inp, tgt in zip(inputs, targets):
         class_counts[tgt] += 1
 
 print("Balanced dataset size:", len(balanced_targets))
-
-#plotting difference
 
 
 # 4️⃣ Train-test split
@@ -156,7 +155,7 @@ tokenizer.save_pretrained(model_path)
 
 trainer.train()
 trainer.evaluate()
-# plot trianing vs validation loss
+# plot training vs validation loss
 plt.figure(figsize=(10, 5))
 plt.plot(loss_tracker.train_losses, label='Training Loss', alpha=0.7)
 plt.plot(loss_tracker.eval_steps, loss_tracker.eval_losses, label='Validation Loss', alpha=0.9, marker='o')
