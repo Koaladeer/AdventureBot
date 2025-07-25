@@ -55,6 +55,17 @@ for step in range(20):
     print(input_text)
     predicted_action = le.inverse_transform([pred])[0]
     print(f"Step {step+1}: Predicted action -> {predicted_action}")
+    #new not testet like this
+    prefixes = ["open a ", "close a ", "take a ", "exit a "]
+    for prefix in prefixes:
+        if predicted_action.startswith(prefix):
+            # Extract the verb part of the string
+            # We add len("a ") to ensure we get the word after "a "
+            verb_to_find = predicted_action.split(' ', 1)
+            for action in valid_actions:
+                if verb_to_find.lower() in action.lower():
+                    predicted_action = action
+    print(f"Step {step+1}: NEW Predicted action -> {predicted_action}")
 
     # Take action
     obs, reward, done, info = env.step(predicted_action)
@@ -63,4 +74,7 @@ for step in range(20):
     state = env.get_state()
 
 env.close()
-print("Game finished!")
+
+
+
+
